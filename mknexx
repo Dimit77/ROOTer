@@ -1,0 +1,51 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+
+# MT3020
+
+MOD="wt3020-8M"
+EXTB=".bin"
+
+cp ./configfiles/.config_nexx_s ./.config
+make V=s
+ORIG="openwrt-ramips-mt7620-wt3020-8M-squashfs-factory.bin"
+FIRM=$BASE$MOD$END"-samba-factory"$EXTB
+ORIG2="openwrt-ramips-mt7620-wt3020-8M-squashfs-sysupgrade.bin"
+FIRM2=$BASE$MOD$END"-samba-upgrade"$EXTB
+cp ./bin/targets/ramips/mt7620/$ORIG ./images/$FIRM
+cp ./bin/targets/ramips/mt7620/$ORIG2 ./images/$FIRM2
+
+cp ./configfiles/.config_nexx_v ./.config
+make V=s
+ORIG3="openwrt-ramips-mt7620-wt3020-8M-squashfs-factory.bin"
+FIRM3=$BASE$MOD$END"-vpn-factory"$EXTB
+ORIG4="openwrt-ramips-mt7620-wt3020-8M-squashfs-sysupgrade.bin"
+FIRM4=$BASE$MOD$END"-vpn-upgrade"$EXTB
+cp ./bin/targets/ramips/mt7620/$ORIG3 ./images/$FIRM3
+cp ./bin/targets/ramips/mt7620/$ORIG4 ./images/$FIRM4
+
+cp ./configfiles/Generic/readme.txt ./images/readme.txt
+cd ./images
+zip -r $MOD$END.zip $FIRM $FIRM2  $FIRM3 $FIRM4 readme.txt
+rm -f $FIRM
+rm -f $FIRM2
+rm -f $FIRM3
+rm -f $FIRM4
+rm -f readme.txt
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

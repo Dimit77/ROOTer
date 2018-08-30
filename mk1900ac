@@ -1,0 +1,43 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "WRT1900ACv1" > ./files/etc/custom
+echo "WRT1900ACv1" >> ./files/etc/custom
+echo "WiFiX" >> ./files/etc/custom
+
+cp ./configfiles/.config_1900acv1 ./.config
+make V=s
+
+MOD="WRT1900AC-V1"
+EXTB="-factory.img"
+EXTB1="-upgrade.bin"
+
+ORIG="openwrt-mvebu-cortexa9-linksys-wrt1900ac-squashfs-factory.img"
+ORIG1="openwrt-mvebu-cortexa9-linksys-wrt1900ac-squashfs-sysupgrade.bin"
+FIRM=$BASE$MOD$END$EXTB
+FIRM1=$BASE$MOD$END$EXTB1
+cp ./bin/targets/mvebu/cortexa9/$ORIG ./images/$FIRM
+cp ./bin/targets/mvebu/cortexa9/$ORIG1 ./images/$FIRM1
+cp ./configfiles/Generic/readme.txt ./images/readme.txt
+cd ./images
+zip -r $MOD$END.zip $FIRM $FIRM1 readme.txt
+rm -f $FIRM
+rm -f $FIRM1
+rm -f readme.txt
+cd ..
+
+
+echo "     Ending `basename "$0"`" >> ./build-log

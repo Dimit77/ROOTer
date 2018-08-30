@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model> (Mesh)" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_3700mesh ./.config
+make V=s
+
+# wndr3700/3800/mac
+
+MOD="wndr3700v2"
+EXTB=".img"
+EXTU="-update.bin"
+EXTX=".bin"
+
+ORIG=$BASEQ$MOD$ENDO$EXTB
+FIRM=$BASE$MOD$END-mesh$EXTB
+ORIGU=$BASEQ$MOD$ENDU$EXTX
+FIRMU=$BASE$MOD$END-mesh$EXTU
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cp ./bin/targets/ar71xx/generic/$ORIGU ./images/$FIRMU
+cp ./configfiles/WNDR3700/SpecialFlashingInstructions.pdf ./images/SpecialFlashingInstructions.pdf
+cd ./images
+zip -r $MOD$END-mesh.zip $FIRM $FIRMU SpecialFlashingInstructions.pdf
+rm -f $FIRM
+rm -f $FIRMU
+rm -f SpecialFlashingInstructions.pdf
+cd ..
+
+
+echo "                            <model> (Mesh)" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_835mesh ./.config
+make V=s
+
+# dir-835 a1
+
+MOD="dir-835-a1"
+EXTB=".bin"
+
+ORIG=$BASEQ$MOD$ENDO$EXTB
+FIRM=$BASE$MOD$END-mesh$EXTB
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cd ./images
+zip $MOD$END-mesh.zip $FIRM
+rm -f $FIRM
+cd ..
+

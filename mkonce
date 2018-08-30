@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+DATE="2018-08-15"
+
+NAME="GoldenOrb_"
+CODE=$NAME$DATE
+rm -rf ./files
+mkdir -p ./files/etc
+echo 'CODENAME="'"$CODE"'"' > ./files/etc/codename
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+if [ ! -e ./staging_dir/hostpkg/lib/lua/5.1 ]; then
+	mkdir -p ./staging_dir/hostpkg/lib/lua/5.1
+fi
+
+TYP="-GO"
+END=$TYP$DATE
+
+./mk826 $END
+

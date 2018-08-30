@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "GL6416" > ./files/etc/custom
+echo "GL6416" >> ./files/etc/custom
+echo "WiFiX" >> ./files/etc/custom
+
+cp ./configfiles/.config_6416 ./.config
+make V=s
+
+MOD="gl-inet-6416A-v1"
+EXTB=".bin"
+
+ORIG=$BASEQ$MOD$ENDU$EXTB
+FIRM=$BASE$MOD$END-upgrade$EXTB
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cp ./configfiles/GL/readme.txt ./images/readme.txt
+cd ./images
+zip $MOD$END.zip $FIRM readme.txt
+rm -f $FIRM
+rm -f readme.txt
+cd ..

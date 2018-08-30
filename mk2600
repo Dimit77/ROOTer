@@ -1,0 +1,40 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_2600 ./.config
+make V=s
+
+# C2600
+
+MOD="C2600"
+EXTB="-factory.bin"
+EXTB1="-update.bin"
+
+ORIG=openwrt-ipq806x-tplink_c2600-squashfs-factory.bin
+FIRM=$BASE$MOD$END$EXTB
+ORIG1=openwrt-ipq806x-tplink_c2600-squashfs-sysupgrade.bin
+FIRM1=$BASE$MOD$END$EXTB1
+cp ./bin/targets/ipq806x/generic/$ORIG ./images/$FIRM
+cp ./bin/targets/ipq806x/generic/$ORIG1 ./images/$FIRM1
+cp ./configfiles/Generic/readme.txt ./images/readme.txt
+cd ./images
+zip $MOD$END.zip $FIRM $FIRM1 readme.txt
+rm -f $FIRM
+rm -f $FIRM1
+rm -f readme.txt
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

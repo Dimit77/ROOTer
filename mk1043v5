@@ -1,0 +1,42 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_1043v5 ./.config
+make V=s
+
+
+# wr1043n
+
+MOD="wr1043n-v5"
+EXTB=".bin"
+
+ORIG=$BASEO$MOD$ENDO$EXTB
+FIRM=$BASE$MOD$END-mesh-factory$EXTB
+ORIG1=$BASEO$MOD$ENDU$EXTB
+FIRM1=$BASE$MOD$END-mesh-upgrade$EXTB
+
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cp ./bin/targets/ar71xx/generic/$ORIG1 ./images/$FIRM1
+cp ./configfiles/Generic/readme.txt ./images/readme.txt
+cd ./images
+zip $MOD$END-mesh.zip $FIRM $FIRM1
+
+rm -f $FIRM
+rm -f $FIRM1
+rm -f readme.txt
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

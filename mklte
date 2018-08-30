@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+DATE="2018-08-06"
+
+NAME="GoldenOrb_"
+CODE=$NAME$DATE
+rm -rf ./files
+mkdir -p ./files/etc
+echo 'CODENAME="'"$CODE"'"' > ./files/etc/codename
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/wifix.png" >> ./files/etc/header_msg
+echo "/img/wifix.png" >> ./files/etc/header_msg
+TYP="-GO"
+END=$TYP$DATE
+
+./mk1900ac $END

@@ -1,0 +1,34 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_150 ./.config
+make V=s
+
+# ar150
+
+MOD="gl-ar150"
+EXTB=".bin"
+
+ORIG=$BASEQ$MOD$ENDU$EXTB
+FIRM=$BASE$MOD$END$EXTB
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cd ./images
+zip $MOD$END.zip $FIRM
+rm -f $FIRM
+cd ..
+
+
+echo "     Ending `basename "$0"`" >> ./build-log

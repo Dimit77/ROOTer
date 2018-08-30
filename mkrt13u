@@ -1,0 +1,37 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_n13u ./.config
+make V=s
+
+# RT-13U
+
+MOD="rt-n13u-b1"
+EXTB=".bin"
+
+ORIG1="openwrt-ramips-rt305x-rt-n13u-squashfs-sysupgrade.bin"
+FIRM1=$BASE$MOD$END$EXTB
+cp ./bin/targets/ramips/rt305x/$ORIG1 ./images/$FIRM1
+cp ./configfiles/RT13U/tftp2.exe ./images/tftp2.exe
+cp ./configfiles/RT13U/Flashing_an_Asus_RT-N13U_Router.pdf ./images/Flashing_an_Asus_RT-N13U_Router.pdf
+cd ./images
+zip $MOD$END.zip $FIRM1 tftp2.exe Flashing_an_Asus_RT-N13U_Router.pdf
+rm -f $FIRM1
+rm -f tftp2.exe
+rm -f Flashing_an_Asus_RT-N13U_Router.pdf
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

@@ -1,0 +1,41 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_mikro ./.config
+make V=s
+
+# Mikrotik
+
+MOD="mikrotik"
+EXTB=".bin"
+
+ORIG=openwrt-ar71xx-mikrotik-nand-large-squashfs-sysupgrade.bin
+FIRM=$BASE$MOD$END"-squashfs-sysupgrade.bin"
+ORIG1=openwrt-ar71xx-mikrotik-vmlinux-initramfs.elf
+FIRM1=$BASE$MOD$END"-vmlinux-initramfs.elf"
+cp ./bin/targets/ar71xx/mikrotik/$ORIG ./images/$FIRM
+cp ./bin/targets/ar71xx/mikrotik/$ORIG1 ./images/$FIRM1
+cd ./images
+zip $MOD$END.zip $FIRM $FIRM1
+rm -f $FIRM
+rm -f $FIRM1
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

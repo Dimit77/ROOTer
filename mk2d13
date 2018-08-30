@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_2d13 ./.config
+make V=s
+
+# Alix 2D13
+
+MOD="alix-2d13"
+EXTB=".img.gz"
+
+ORIG=openwrt-x86-geode-combined-ext4.img.gz
+FIRM=$BASE$MOD$END$EXTB
+cp ./bin/targets/x86/geode/$ORIG ./images/$FIRM
+cd ./images
+zip $MOD$END.zip $FIRM
+rm -f $FIRM
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

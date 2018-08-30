@@ -1,0 +1,12 @@
+
+config watchping 'watchping'
+	option alive '1'
+	option pingtime '5'
+	option pingwait '2'
+	option reliability '1'
+	option count '1'
+	option packetsize '56'
+	option down '2'
+	option up '2'
+	list trackip '8.8.8.8'
+

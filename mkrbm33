@@ -1,0 +1,43 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_rbm33 ./.config
+make V=s
+
+# RBM33G
+
+MOD="RBM33G"
+EXTB=".bin"
+
+ORIG=openwrt-ramips-mt7621-mikrotik_rbm33g-initramfs-kernel.bin
+FIRM=$BASE$MOD$END-factory$EXTB
+ORIG1=openwrt-ramips-mt7621-mikrotik_rbm33g-squashfs-sysupgrade.bin
+FIRM1=$BASE$MOD$END-upgrade$EXTB
+cp ./bin/targets/ramips/mt7621/$ORIG ./images/$FIRM
+cp ./bin/targets/ramips/mt7621/$ORIG1 ./images/$FIRM1
+cp ./configfiles/Generic/readme.txt ./images/readme.txt
+cd ./images
+zip $MOD$END.zip $FIRM $FIRM1 readme.txt
+rm -f $FIRM
+rm -f $FIRM1
+rm -f readme.txt
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

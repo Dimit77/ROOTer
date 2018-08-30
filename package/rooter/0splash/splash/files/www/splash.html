@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+	<title>Home - ROOTer</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="luci-static/bootstrap/cascade.css">
+	<link rel="stylesheet" media="only screen and (max-device-width: 854px)" href="luci-static/bootstrap/mobile.css" type="text/css" />
+	<link rel="stylesheet" href="luci-static/rooter/css/iconmoon_splash.css">
+	<link rel="stylesheet" href="luci-static/rooter/css/splash.css">
+
+	<link rel="SHORTCUT ICON" href="luci-static/rooter/img/favicon.gif">
+	<link rel="icon" type="image/gif" href="luci-static/rooter/img/favicon.gif">
+ </head>
+
+
+ <body id='rooterSplashHome' class='rooterSplash'>
+
+<script src="luci-static/rooter/js/jquery.min.js"></script>
+<script language="javascript">
+$( document ).ready(function() {
+	var div=$('.rooterHeadBox');
+	div.hide();
+	div.css('opacity',1);
+	div.fadeIn(2000);
+	
+	function anim(item,time){
+		item.animate({
+    		marginLeft: "20px",
+    		marginRight: "20px",
+  		}, time );
+	}
+	anim($('#rooterItem1'),100);
+	anim($('#rooterItem2'),400);
+	anim($('#rooterItem3'),700);
+	anim($('#rooterItem4'),1000);
+
+});
+</script>
+
+	<div class='rooterPageHead'>
+
+		<div class='rooterHeadBox'>
+			<div class='rooterLogo'></div>
+			<div class='rooterTagline'>The<br>ROOter<br>Project</div>
+		</div>
+	</div>
+
+	<div class='rooterPageContent'>
+
+		<div class="" id="rooterItems">
+
+			<a href='cgi-bin/luci'>
+			<div class="rooterItem" id="rooterItem1">
+				<div class="rooterItemTitle"><i class='icon icon-cog'></i> ROOter Admin</div>
+				<div class="rooterItemDesc">Continue to the ROOter Web GUI.</div>
+			</div>
+			</a>
+
+			<a href='status.html'>
+			<div class="rooterItem" id="rooterItem2">
+				<div class="rooterItemTitle"><i class='icon icon-signal'></i> Modem Status</div>
+				<div class="rooterItemDesc">See the Modem Status.</div>
+			</div>
+			</a>
+
+			<a href='http://www.ofmodemsandmen.com/redirect.html'>
+			<div class="rooterItem" id="rooterItem3">
+				<div class="rooterItemTitle"><i class='icon icon-comments'></i> ROOter Forum</div>
+				<div class="rooterItemDesc">Join the ROOter community as it discusses ROOter issues and features.</div>
+			</div>
+			</a>
+
+			<a href='http://www.ofmodemsandmen.com'>
+			<div class="rooterItem" id="rooterItem4">
+				<div class="rooterItemTitle"><i class='icon icon-earth'></i> ROOter Home</div>
+				<div class="rooterItemDesc">Find out all about new ROOter features and firmware availability.</div>
+			</div>
+			</a>
+
+		</div>
+	</div>
+
+	<div class='rooterPageFoot'>
+		<div class="rooterFootMenu">
+			<ul>
+				<li><a href="splash.html"><i class='icon icon-home'></i> Home</a> | </li>
+				<li><a href="status.html"><i class='icon icon-signal'></i> Status</a> | </li>
+				<li><a href="cgi-bin/luci/"><i class='icon icon-cog'></i> Admin</a></li>
+			</ul>
+		</div>
+		<div class="rooterFootCredits">
+			<a href="http://www.ofmodemsandmen.com" target="_blank">ROOter</a> Splash Page by <a href="https://github.com/soif" target="_blank">Soif</a> and <a href="https://forums.whirlpool.net.au/user/483126" target="_blank">Dairyman</a>
+		</div>
+	</div>
+
+ </body>
+</html>
+

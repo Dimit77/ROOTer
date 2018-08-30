@@ -1,0 +1,144 @@
+#!/bin/sh 
+. /lib/functions.sh
+
+log() {
+	logger -t "MESH-PING" "$@"
+}
+
+log "Mesh-Ping has started"
+
+do_ping() {
+	INTERF=$1
+	TIMEOUT=$(uci get watchping.watchping.pingwait)
+	INTERVAL=$(uci get watchping.watchping.pingtime)
+	RELIAB=$(uci get watchping.watchping.reliability)
+	DOWN=$(uci get watchping.watchping.down)
+	UP=$(uci get watchping.watchping.up)
+	COUNT=$(uci get watchping.watchping.count)
+	PACKETSIZE=$(uci get watchping.watchping.packetsize)
+	track_ips=
+	list_track_ips() {
+		track_ips="$1 $track_ips"
+	}
+	config_load watchping
+	config_list_foreach "watchping" "trackip" list_track_ips
+	if [ -z $track_ips ]; then
+		track_ips="8.8.8.8"
+	fi
+	UPDWN="0"
+	host_up_count=0
+	score_up=$UP
+	score_dwn=$DOWN
+	lost=0
+	while true; do
+		if [ ! -z "$track_ips" ]; then
+			for track_ip in $track_ips; do
+				ping -I $INTERF -c $COUNT -W $TIMEOUT -s $PACKETSIZE -q $track_ip &> /dev/null
+				if [ $? -eq 0 ]; then
+					let host_up_count++
+				else
+					let lost++
+				fi
+			done
+			if [ $host_up_count -lt $RELIAB ]; then
+				let score_dwn--
+				score_up=$UP
+				if [ $score_dwn -eq 0 ]; then
+					UPDWN="1"
+					break
+				fi
+			else
+				let score_up--
+				score_dwn=$DOWN
+				if [ $score_up -eq 0 ]; then
+					UPDWN="0"
+					break
+				fi
+			fi
+		fi
+		host_up_count=0
+		sleep $INTERVAL
+	done
+	if [ $UPDWN = "0" ]; then
+		PING=1
+	fi
+}
+
+pinging() {
+	PING=0
+	SPEED="10000"
+	EMP=$(uci get modem.modem1.empty)
+	if [ $EMP -eq 0 ]; then
+		CON=$(uci get modem.modem1.connected)
+		if [ $CON -eq 1 ]; then
+			INTER=$(uci get modem.modem1.interface)
+			do_ping $INTER
+			SPEED=$(uci get watchping.speed.m1)
+		fi
+	fi
+	if [ $PING -eq 0 ]; then
+		EMP=$(uci get modem.modem2.empty)
+		if [ $EMP -eq 0 ]; then
+			CON=$(uci get modem.modem2.connected)
+			if [ $CON -eq 1 ]; then
+				INTER=$(uci get modem.modem2.interface)
+				do_ping $INTER
+				SPEED=$(uci get watchping.speed.m2)
+			fi
+		fi
+	fi
+	if [ $PING -eq 0 ]; then
+		mode="sta"
+		RADIO=$(uci get wireless.wwan.device)
+		if [ $RADIO ] ; then
+			INTER="$(ubus -S call network.wireless status | jsonfilter -l 1 -e "@."$RADIO".interfaces[@.config.mode=\"${mode}\"].ifname")"
+			if [ $INTER ]; then
+				do_ping $INTER
+				SPEED=$(uci get watchping.speed.ww)
+			fi
+		fi
+	fi
+	if [ $PING -eq 0 ]; then
+		INTER=$(uci get network.wan.ifname)
+		if [ $INTER ]; then
+			do_ping $INTER
+			SPEED=$(uci get watchping.speed.w)
+		fi
+	fi
+}
+
+gateway() {
+	mode=$1
+# batman-adv gateway handling (DHCP mangling)
+	[ "$(uci -q get batman-adv.bat0.gw_mode)" == "client" ] || exit 0
+	if grep -q "^=>" /sys/kernel/debug/batman_adv/bat0/gateways ; then
+		BATTYPE=gw BATACTION=$mode /etc/hotplug.d/net/99-batman-gw
+	fi
+}
+
+PING=0	
+FAIL=1
+LASTSTATE=2
+
+while true ; do
+	sleep 20
+	pinging
+	if [ $PING -eq 1 ] ; then
+		FAIL=0
+	else
+		FAIL=1
+	fi	
+	
+	if [ $FAIL -ne $LASTSTATE -a $FAIL -eq 1 ] ; then
+		log "no ping reply. Internet is down"
+		gateway add
+		batctl gw_mode client
+	else
+		if [ $FAIL -ne $LASTSTATE -a $FAIL -eq 0 ] ; then 
+			log "got ping reply. Internet is up. $SPEED"
+			gateway del
+			batctl gw_mode server $SPEED
+		fi
+	fi
+	LASTSTATE=$FAIL
+done

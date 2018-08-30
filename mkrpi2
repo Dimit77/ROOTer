@@ -1,0 +1,41 @@
+#!/bin/sh 
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_rpi2 ./.config
+make V=s
+
+# Raspberry Pi2
+
+MOD1="RaspberryPi2"
+EXTB1=".img"
+
+ORIG1="openwrt-brcm2708-bcm2709-rpi-2-ext4-factory.img.gz"
+ORIG2="openwrt-brcm2708-bcm2709-rpi-2-ext4-factory.img"
+FIRM1=$BASE$MOD1$END$EXTB1
+
+cp ./bin/targets/brcm2708/bcm2709/$ORIG1 ./images/$ORIG1
+cd ./images
+gunzip $ORIG1
+mv $ORIG2 $FIRM1
+zip -r $MOD1$END.zip $FIRM1
+rm -f $FIRM1
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

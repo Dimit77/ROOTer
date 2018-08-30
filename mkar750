@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_ar750 ./.config
+make V=s
+
+# ar750
+
+MOD="gl-ar750"
+EXTB=".bin"
+
+ORIG=$BASEQ$MOD$ENDU$EXTB
+FIRM=$BASE$MOD$END$EXTB
+cp ./bin/targets/ar71xx/generic/$ORIG ./images/$FIRM
+cd ./images
+zip $MOD$END.zip $FIRM
+rm -f $FIRM
+cd ..
+
+

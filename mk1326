@@ -1,0 +1,37 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_1326 ./.config
+make V=s
+
+# WE1326
+
+MOD="we1326"
+EXTB=".bin"
+
+ORIG=openwrt-ramips-mt7621-zbt-we1326-squashfs-sysupgrade.bin
+FIRM=$BASE$MOD$END-upgrade$EXTB
+cp ./bin/targets/ramips/mt7621/$ORIG ./images/$FIRM
+cd ./images
+zip $MOD$END.zip $FIRM
+rm -f $FIRM
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log

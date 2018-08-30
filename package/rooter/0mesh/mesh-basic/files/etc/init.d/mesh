@@ -1,0 +1,74 @@
+#!/bin/sh /etc/rc.common
+
+. /lib/functions.sh
+
+START=99
+
+log() {
+	logger -t "Mesh " "$@"
+}
+
+NET=0
+start()
+{
+	DONE=$(uci get batman-adv.check.done)
+	if [ -z $DONE ]; then
+		uci delete batman-adv.bat0
+		uci set batman-adv.bat0=mesh
+		uci set batman-adv.bat0.aggregated_ogms='1'
+		uci set batman-adv.bat0.ap_isolation='0'
+		uci set batman-adv.bat0.bonding='0'
+		uci set batman-adv.bat0.fragmentation='0'
+		uci set batman-adv.bat0.gw_bandwidth='10000/2000'
+		uci set batman-adv.bat0.gw_mode='client'
+		uci set batman-adv.bat0.gw_sel_class='20'
+		uci set batman-adv.bat0.log_level='2'
+		uci set batman-adv.bat0.orig_interval='1000'
+		uci set batman-adv.bat0.bridge_loop_avoidance='1'
+		uci set batman-adv.bat0.distributed_arp_table='1'
+		uci set batman-adv.bat0.multicast_mode='1'
+		uci set batman-adv.bat0.network_coding='0'
+		uci set batman-adv.bat0.hop_penalty='30'
+		uci set batman-adv.bat0.isolation_mark='0'
+
+		uci set batman-adv.check=check
+		uci set batman-adv.check.done=1  
+		uci commit batman-adv
+
+		uci set alfred.alfred.batmanif='bat0'
+		uci set alfred.alfred.disabled='0'
+		uci commit alfred
+		/etc/init.d/alfred restart
+
+		uci delete network.radio0_batnet
+		uci set network.radio0_batnet=interface
+		uci set network.radio0_batnet.mtu=1536
+		uci set network.radio0_batnet.auto=1
+		uci set network.radio0_batnet.proto=batadv
+		uci set network.radio0_batnet.mesh=bat0
+		
+		uci delete network.lan_dhcp
+		uci set network.lan_dhcp=interface
+		uci set network.lan_dhcp.ifname=@lan
+		uci set network.lan_dhcp.proto=dhcp
+		uci set network.lan_dhcp.auto=0
+
+		uci commit network
+		NET=1
+	fi
+	IF=$(uci get network.lan.ifname)
+	BAT=$(echo $IF | grep "bat0")
+	if [ -z $BAT ]; then
+		IF="$IF bat0"
+		uci set network.lan.ifname="$IF"
+		uci commit network
+		NET=1
+	fi
+	if [ $NET = 1 ]; then
+		/etc/init.d/network restart
+	fi
+
+	./usr/lib/mesh/mesh-wifi.sh &
+}
+
+

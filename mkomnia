@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# automatic build maker
+
+#build version
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+cp ./configfiles/.config_omnia ./.config
+make V=s
+
+
+MOD="turris-omnia"
+EXTB=".bin"
+
+ORIG="openwrt-mvebu-cortexa9-turris-omnia-initramfs-kernel.bin"
+FIRM=$BASE$MOD$END-initramfs-kernel.bin
+ORIG1="openwrt-mvebu-cortexa9-turris-omnia-sysupgrade.img.gz"
+FIRM1=$BASE$MOD$END-upgrade.img.gz
+ORIG2="omnia-medkit-openwrt-mvebu-cortexa9-turris-omnia-initramfs.tar.gz"
+FIRM2="omnia-medkit-$END.tar.gz"
+cp ./bin/targets/mvebu/cortexa9/$ORIG ./images/$FIRM
+cp ./bin/targets/mvebu/cortexa9/$ORIG1 ./images/$FIRM1
+cp ./bin/targets/mvebu/cortexa9/$ORIG2 ./images/$FIRM2
+cp ./configfiles/Omnia/readme.txt ./images/readme.txt
+cd ./images
+zip $MOD$END.zip $FIRM $FIRM1 $FIRM2 readme.txt
+rm -f $FIRM
+rm -f $FIRM1
+rm -f $FIRM2
+rm -f readme.txt
+cd ..

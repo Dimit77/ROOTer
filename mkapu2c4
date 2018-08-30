@@ -1,0 +1,40 @@
+#!/bin/sh -e
+
+# automatic build maker
+
+#build version
+
+echo "Starting `basename "$0"`" >> ./build-log
+
+END=$1
+
+BASE="openwrt-"
+BASEO="openwrt-ar71xx-generic-tl-"
+BASEQ="openwrt-ar71xx-generic-"
+ENDO="-squashfs-factory"
+ENDU="-squashfs-sysupgrade"
+
+echo "                            <model>" > ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+echo "/img/rooter.png" >> ./files/etc/header_msg
+
+cp ./configfiles/.config_apu2c4 ./.config
+make V=s
+
+# APU2C4
+
+MOD="APU2C4"
+
+ORIG="openwrt-x86-64-combined-squashfs.img.gz"
+ORIG1="openwrt-x86-64-combined-squashfs.img"
+FIRM=$BASE$MOD$END.img
+cp ./bin/targets/x86/64/$ORIG ./images/$ORIG
+cd ./images
+gunzip $ORIG
+mv $ORIG1 $FIRM
+zip -r $MOD$END.zip $FIRM
+rm -f $FIRM
+rm -f $ORIG
+cd ..
+
+echo "     Ending `basename "$0"`" >> ./build-log
